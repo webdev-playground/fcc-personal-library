@@ -19,8 +19,8 @@ module.exports = function(app) {
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       try {
         const books = await Book.find({});
-        b = books.map(book => { _id: book.id, title: book.title, commentcount: book.comments.length });
-        return res.status(200).json(books);
+        const b = books.map(book => ({ _id: book.id, title: book.title, commentcount: book.comments.length }));
+        return res.status(200).json(b);
       } catch (err) {
         return res.status(400).json({ error: err });
       }
@@ -43,15 +43,28 @@ module.exports = function(app) {
 
   app
     .route("/api/books/:id")
-    .get(function(req, res) {
+    .get(async function(req, res) {
       var bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      try {
+        const foundBook = await Book.findById(bookid);
+        if (!foundBook) {
+          return res.status(404).json({ error: 'Book not found' });
+        }
+        return res.status(200).json(foundBook);
+      } catch (err) {
+        return res.status(400).json({ error: err });
+      }
     })
 
-    .post(function(req, res) {
+    .post(async function(req, res) {
       var bookid = req.params.id;
       var comment = req.body.comment;
       //json res format same as .get
+      try {
+        const updatedBook = await Book.findByIdAndUpdate(bookid, { $push: { comments: comment } }, { new: true });
+        ret
+      }
     })
 
     .delete(function(req, res) {
