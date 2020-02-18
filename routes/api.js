@@ -37,8 +37,14 @@ module.exports = function(app) {
       }
     })
 
-    .delete(function(req, res) {
+    .delete(async function(req, res) {
       //if successful response will be 'complete delete successful'
+      try {
+        await Book.deleteMany({});
+        return res.status(200).send('complete delete successful');
+      } catch (err) {
+        return res.status(400).json({ error: err });
+      }
     });
 
   app
@@ -49,7 +55,7 @@ module.exports = function(app) {
       try {
         const foundBook = await Book.findById(bookid);
         if (!foundBook) {
-          return res.status(404).json({ error: 'Book not found' });
+          return res.status(404).send('no book exists');
         }
         return res.status(200).json(foundBook);
       } catch (err) {
@@ -63,12 +69,27 @@ module.exports = function(app) {
       //json res format same as .get
       try {
         const updatedBook = await Book.findByIdAndUpdate(bookid, { $push: { comments: comment } }, { new: true });
-        ret
+        if (!updatedBook) {
+          return res.status(404).send('no book exists');
+        }
+        return res.status(200).json(updatedBook);
+      } catch (err) {
+        return res.status(400).json({ error: err });
       }
     })
 
-    .delete(function(req, res) {
+    .delete(async function(req, res) {
       var bookid = req.params.id;
       //if successful response will be 'delete successful'
+    
+      try {
+        const deletedBook = await Book.findByIdAndDelete(bookid);
+        if (!deletedBook) {
+          return res.status(404).send('no book exists');
+        }
+        return res.status(200).send('delete successful');  
+      } catch (err) {
+        return res.status(400).json({ error: err });
+      }
     });
 };
