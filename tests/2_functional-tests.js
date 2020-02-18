@@ -15,6 +15,7 @@ chai.use(chaiHttp);
 
 let newId;
 const fakeId = '5e4bf9f4c50c385c3a2a9aaa';
+process.env.NODE_ENV = 'test';
 
 suite('Functional Tests', function() {
 
@@ -41,16 +42,14 @@ suite('Functional Tests', function() {
   suite('Routing tests', function() {
 
 
-    suite('POST /api/books with title => create book object/expect book object', function() {
+    suite('POST /api/books with titles => create book object/expect book object', function() {
       
       test('Test POST /api/books with title', function(done) {
         chai.request(server).post('/api/books').send({ title: 'ABC' }).end((err, res) => {
           assert.equal(res.status, 201);
           assert.equal(res.body.title, 'ABC');
           assert.property(res.body, '_id');
-          
           newId = res.body._id;
-          
           done();
         });
       });
